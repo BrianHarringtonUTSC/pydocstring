@@ -1,9 +1,45 @@
 class DocString():
-    def __init__(self):
-        self._type_contract = ''
+    ''' python docstring object, apply PEP-257 docstring style checking '''
+
+    def __init__(self, doc=""):
+        ''' (DocString, str) -> None
+        Initialize a Docstring constructor.
+
+        Note: we have second option here, instead of taking doc, we can also take in the function object,
+        then save the doc by calling func.__doc__, so that we have kept both docstring and function itself for reference
+        '''
+        self.doc = doc
+        self._doc_list = self.doc.split('\n')  # if successfully parsed docstring, this eventually become empty list
+        self._type_contract = TypeContract(self._type_contract_parser())
         self._description = ''
         self._requirement = ''
         self._examples = ''  # maybe not needed.
+
+    def __str__(self):
+        return self.doc
+
+    def get_type_contract(self):
+        ''' (Docstring) -> TypeContract
+        Return the TypeContract object
+        '''
+        return self._type_contract
+
+    def get_description(self):
+        ''' (Docstring) -> Description
+        Return the Description object
+        '''
+        return self._description
+
+    def get_requirement(self):
+        ''' (Docstring) -> Requirement
+        Return the Requirement object
+        '''
+        return self._requirement
+
+    def _type_contract_parser(self):
+        tc = ''.join(list(filter(lambda d: '(' in d and ')' in d and '->' in d, self._doc_list)))
+        self._doc_list.remove(tc)
+        return tc
 
 
 class TypeContract():
