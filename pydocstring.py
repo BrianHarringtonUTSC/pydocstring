@@ -37,12 +37,29 @@ class DocString():
         return self._requirement
 
     def _parse_type_contract(self):
-        ''' (DocString) -> TypeContract
-        Parses a given string (docstring) and extracts the type contract.
-        '''
-        tc = ''.join(list(filter(lambda d: '(' in d and ')' in d and '->' in d, self._doc_list)))
-
-        return TypeContract(None, None)
+        """ (DocString) -> dict of {str: list of str}
+        Returns a dictionary that contains a list of strings representing the inputs, and another list of strings
+        representing the outputs of the type contract
+        """
+        # get the type contract as a string
+        type_contract = ''.join(list(filter(lambda d: '(' in d and ')' in d and '->' in d, self._doc_list)))
+        # determine where the inputs and output start in the string
+        input_start, input_end = type_contract.find("(") + 1, type_contract.find(")")
+        output_start = type_contract.find("->") + 2 if "->" in type_contract else type_contract.find("-->")
+        # split the inputs by the comma, and remove any extra white space
+        inputs = [token.strip() for token in type_contract[input_start:input_end].split(",")]
+        outputs = []
+        # split the outputs string by commas and iterate through each token, removing
+        # extra whitespace and matching parentheses if present
+        for token in type_contract[output_start:].split(","):
+            token = token.strip()
+            if "(" in token and ")" in token:
+                # if parentheses are present in the outputs, remove them but only one
+                # occurrence. If they put too many brackets they should remain in the final output
+                token = token.replace("(", "", 1)
+                token = token.replace(")", "", 1)
+            outputs.append(token)
+        return {"inputs": inputs, "outputs": outputs}
 
     def _parse_requirements(self):
         ''' (DocString) -> Requirement
@@ -127,7 +144,7 @@ if __name__ == "__main__":
 
 
     def func2(a_str, a_int, a_float, a_list, a_dict):
-        ''' (str, int, float, DocString, dict of {str: int}) -> bool
+        ''' (str, int, float, DocString, dict of {str: int}) -> (bool, float, list of int)
         REQ: this is a requirement
         REQ: another requirement
         requirement: possibly another requirement like this
@@ -146,4 +163,6 @@ if __name__ == "__main__":
 doc = DocString(func1)
 print(doc._requirements._requirements)
 print(doc._examples._examples)
+print(str(doc.get_type_contract()))
 doc2 = DocString(func2)
+doc2_tc = doc2.get_type_contract()
