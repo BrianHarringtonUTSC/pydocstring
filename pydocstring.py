@@ -126,7 +126,7 @@ class Example():
 
 if __name__ == "__main__":
     def func1(a_str, a_int, a_float, a_list, a_dict):
-        ''' (str, int, float, DocString, dict of {str: int}) -> bool
+        ''' (str, int, float, list of str, dict of {str: int}) -> bool
         This is a sample doc, this line is not too long.
         This line is a bit longer than expected, we need to break this
         line into two.
@@ -144,7 +144,7 @@ if __name__ == "__main__":
 
 
     def func2(a_str, a_int, a_float, a_list, a_dict):
-        ''' (str, int, float, DocString, dict of {str: int}) -> (bool, float, list of int)
+        ''' (str, int, float, list of str, dict of {str: int}) -> (bool, float, list of int)
         REQ: this is a requirement
         REQ: another requirement
         requirement: possibly another requirement like this
@@ -162,7 +162,6 @@ if __name__ == "__main__":
 
 doc = DocString(func1)
 print(doc._requirements._requirements)
-print(doc._examples._examples)
 print(str(doc.get_type_contract()))
 doc2 = DocString(func2)
 doc2_tc = doc2.get_type_contract()
