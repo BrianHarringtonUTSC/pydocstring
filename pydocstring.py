@@ -2,7 +2,7 @@ class DocString():
     ''' python docstring object, apply PEP-257 docstring style checking '''
 
     def __init__(self, function):
-        ''' (DocString, str) -> None
+        ''' (DocString, function) -> None
         Initialize a DocString constructor.
 
         Note: we have second option here, instead of taking doc, we can also take in the function object,
@@ -34,7 +34,7 @@ class DocString():
         ''' (DocString) -> Requirement
         Return the Requirement object
         '''
-        return self._requirement
+        return self._requirements
 
     def _parse_type_contract(self):
         """ (DocString) -> dict of {str: list of str}
@@ -87,9 +87,7 @@ class DocString():
         return Example(None)
 
 
-
 class TypeContract():
-
     def __init__(self, arg_types, return_types):
         # Type contract should contain the arguments and return types
         self._arg_types = []
@@ -161,8 +159,30 @@ if __name__ == "__main__":
         '''
         return False  # dummy code
 
-doc = DocString(func1)
-print(doc._requirements._requirements)
-print(str(doc.get_type_contract()))
-doc2 = DocString(func2)
-doc2_tc = doc2.get_type_contract()
+
+    def func3():  # function that does not have docstring
+        return None  # dummy code
+
+
+    def func4():
+        ''' (tuple of (str, int)) -> None
+        This may not get desired result.
+        '''
+        pass
+
+
+    def func5():
+        ''' (tuple of (str, int)) -> tuple of (str, int)
+        This may not get desired result.
+        '''
+        pass
+
+# doc = DocString(func1)
+# print(doc._requirements._requirements)
+# print(str(doc.get_type_contract()))
+# doc2 = DocString(func2)
+# doc2_tc = doc2.get_type_contract()
+
+doc = DocString(func5)
+doc.get_type_contract()
+print(doc.get_type_contract())
