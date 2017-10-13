@@ -2,7 +2,7 @@ class DocString:
     """ python docstring object, apply PEP-257 docstring style checking """
 
     def __init__(self, func):
-        """ (DocString, str) -> None
+        """ (DocString, function) -> None
         Initialize a DocString constructor.
 
         Note: we have second option here, instead of taking doc, we can also
@@ -172,8 +172,7 @@ if __name__ == "__main__":
     def func2(a_str, a_int, a_float, a_list, a_dict):
         # TODO if you split the type contract to follow PEP 8 it will not
         # fully parse
-        """(str, int, float, DocString, dict of {str: int}) -> (bool, float,
-        list of int)
+        """(str, int, float, list of str, dict of {str: int}) -> (bool, float, list of int)
         REQ: this is a requirement
         REQ: another requirement
         requirement: possibly another requirement like this
@@ -190,10 +189,30 @@ if __name__ == "__main__":
         """
         return False  # dummy code
 
-doc = DocString(func1)
-print(doc._requirements._requirements)
-print(doc._examples._examples)
-print(str(doc.get_type_contract()))
-doc2 = DocString(func2)
-doc2_tc = doc2.get_type_contract()
-print(doc2_tc)
+
+    def func3():  # function that does not have docstring
+        return None  # dummy code
+
+
+    def func4():
+        ''' (tuple of (str, int)) -> None
+        This may not get desired result.
+        '''
+        pass
+
+
+    def func5():
+        ''' (tuple of (str, int)) -> tuple of (str, int)
+        This may not get desired result.
+        '''
+        pass
+
+# doc = DocString(func1)
+# print(doc._requirements._requirements)
+# print(str(doc.get_type_contract()))
+# doc2 = DocString(func2)
+# doc2_tc = doc2.get_type_contract()
+
+doc = DocString(func5)
+doc.get_type_contract()
+print(doc.get_type_contract())
