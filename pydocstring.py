@@ -21,6 +21,8 @@ class DocString:
 
     def _parse_inline_type_contract(self, func):
         type_list = list(func.__annotations__.values())
+        if type_list == []:
+            return TypeContract([], [])
         inputs = type_list[0:-1]
         outputs = type_list[-1]
         return TypeContract(inputs, outputs)
@@ -109,6 +111,10 @@ class DocString:
 
 
 class TypeContract:
+    def __str__(self) -> str:
+        return "intputs: {}, outputs: {}".format(self._arg_types,
+                                                 self._return_types)
+
     def __init__(self, arg_types, return_types):
         # Type contract should contain the arguments and return types
         self._arg_types = arg_types
@@ -164,6 +170,8 @@ if __name__ == "__main__":
 
 
     def func2(a_str, a_int, a_float, a_list, a_dict):
+        # TODO if you split the type contract to follow PEP 8 it will not
+        # fully parse
         """(str, int, float, DocString, dict of {str: int}) -> (bool, float,
         list of int)
         REQ: this is a requirement
