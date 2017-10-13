@@ -1,7 +1,7 @@
 class DocString:
     """ python docstring object, apply PEP-257 docstring style checking """
 
-    def __init__(self, function):
+    def __init__(self, func):
         """ (DocString, str) -> None
         Initialize a DocString constructor.
 
@@ -10,13 +10,20 @@ class DocString:
         then save the doc by calling func.__doc__, so that we have kept both
         docstring and function itself for reference
         """
-        self.doc = function.__doc__
+        self.doc = func.__doc__
         self._doc_list = list(map(str.strip, self.doc.split('\n')))
         # if successfully parsed docstring, this^ eventually becomes empty list
         self._type_contract = self._parse_type_contract()
+        self._inline_type_contract = self._parse_inline_type_contract(func)
         self._description = self._parse_description()
         self._requirements = self._parse_requirements()
         self._examples = self._parse_examples()
+
+    def _parse_inline_type_contract(self, func):
+        type_list = list(func.__annotations__.values())
+        inputs = type_list[0:-1]
+        outputs = type_list[-1]
+        return TypeContract(inputs, outputs)
 
     def __str__(self):
         return self.doc
@@ -26,6 +33,9 @@ class DocString:
         Return the TypeContract object
         """
         return self._type_contract
+
+    def get_inline_type_contract(self):
+        return self._inline_type_contract
 
     def get_description(self):
         """ (DocString) -> Description
@@ -40,10 +50,8 @@ class DocString:
         return self._requirement
 
     def _parse_type_contract(self):
-        """ (DocString) -> dict of {str: list of str}
-        Returns a dictionary that contains a list of strings representing
-        the inputs, and another list of strings
-        representing the outputs of the type contract
+        """ (DocString) -> TypeContract
+        Returns the type contract of the given docstring
         """
         # get the type contract as a string
         type_contract = ''.join(list(
@@ -73,7 +81,7 @@ class DocString:
         for token in outputs_str.split(","):
             token = token.strip()
             outputs.append(token)
-        return {"inputs": inputs, "outputs": outputs}
+        return TypeContract(inputs, outputs)
 
     def _parse_requirements(self):
         """ (DocString) -> Requirement
@@ -103,8 +111,8 @@ class DocString:
 class TypeContract:
     def __init__(self, arg_types, return_types):
         # Type contract should contain the arguments and return types
-        self._arg_types = []
-        self._return_types = []
+        self._arg_types = arg_types
+        self._return_types = return_types
 
     def __eq__(self, other):
         return False
