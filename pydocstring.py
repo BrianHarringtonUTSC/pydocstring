@@ -1,3 +1,5 @@
+from typecontract_parser import *
+
 class DocString():
     ''' python docstring object, apply PEP-257 docstring style checking '''
 
@@ -19,7 +21,7 @@ class DocString():
         return self.doc
 
     def get_type_contract(self):
-        ''' (DocString) -> TypeContract
+        ''' (DocString) -> dict of {str: list of str}
         Return the TypeContract object
         '''
         return self._type_contract
@@ -31,39 +33,26 @@ class DocString():
         return self._description
 
     def get_requirement(self):
-        ''' (DocString) -> Requirement
+        ''' (DocString) -> list of str
         Return the Requirement object
         '''
-        return self._requirement
+        return self._requirements
+
+    def get_examples(self):
+        '''(DocString) -> Example
+        Return the Example object
+        '''
 
     def _parse_type_contract(self):
-        """ (DocString) -> dict of {str: list of str}
-        Returns a dictionary that contains a list of strings representing the inputs, and another list of strings
-        representing the outputs of the type contract
-        """
-        # get the type contract as a string
-        type_contract = ''.join(list(filter(lambda d: '(' in d and ')' in d and '->' in d, self._doc_list)))
-        # determine where the inputs and output start in the string
-        input_start, input_end = type_contract.find("(") + 1, type_contract.find(")")
-        output_start = type_contract.find("->") + 2 if "->" in type_contract else type_contract.find("-->") + 3
-        # split the inputs by the comma, and remove any extra white space
-        inputs = [token.strip() for token in type_contract[input_start:input_end].split(",")]
-        outputs = []
-        outputs_str = type_contract[output_start:]
-        if "(" in outputs_str and ")" in outputs_str:
-            # if parentheses are present in the outputs, remove them but only one
-            # occurrence. If they put too many brackets they should remain in the final output
-            outputs_str = outputs_str.replace("(", "", 1)
-            outputs_str = outputs_str.replace(")", "", 1)
-        # split the outputs string by commas and iterate through each token, removing
-        # extra whitespace and matching parentheses if present
-        for token in outputs_str.split(","):
-            token = token.strip()
-            outputs.append(token)
-        return {"inputs": inputs, "outputs": outputs}
+        ''' (DocString) -> dict of {str: list of str}
+        Returns a dictionary that contains 2 lists: a list of input types and
+        a list of output types
+        '''
+        result = TC.parse_partial(self.doc)[0]
+        return TypeContract(result["inputs"], result["outputs"])
 
     def _parse_requirements(self):
-        ''' (DocString) -> Requirement
+        ''' (DocString) -> list of str
         Parses a given string (docstring) and extracts the description.
         '''
         # Search for the beginning "req" case-insensitively
@@ -72,13 +61,13 @@ class DocString():
             if item[0:3].lower() == "req":
                 requirements_list.append(item)
 
-        return Requirement(requirements_list)
+        return requirements_list
 
     def _parse_description(self):
         ''' (DocString) -> Description
         Parses a given string (docstring) and extracts the requirements.
         '''
-        return Description(None)
+        return "Pending Description"
 
     def _parse_examples(self):
         ''' (DocString) -> Example
@@ -86,18 +75,18 @@ class DocString():
         '''
         return Example(None)
 
-
-
-class TypeContract():
+class TypeContract:
+    def __str__(self) -> str:
+        return "inputs: {}, outputs: {}".format(self._arg_types,
+                                                 self._return_types)
 
     def __init__(self, arg_types, return_types):
         # Type contract should contain the arguments and return types
-        self._arg_types = []
-        self._return_types = []
+        self._arg_types = arg_types
+        self._return_types = return_types
 
     def __eq__(self, other):
         return False
-
 
 class Description():
     def __init__(self, text):
@@ -127,7 +116,7 @@ class Example():
 
 if __name__ == "__main__":
     def func1(a_str, a_int, a_float, a_list, a_dict):
-        ''' (str, int, float, list of str, dict of {str: int}) -> (bool)
+        ''' (str, int, float, list of str) -> (bool)
         This is a sample doc, this line is not too long.
         This line is a bit longer than expected, we need to break this
         line into two.
@@ -145,7 +134,7 @@ if __name__ == "__main__":
 
 
     def func2(a_str, a_int, a_float, a_list, a_dict):
-        ''' (str, int, float, list of str, dict of {str: int}) -> (bool, float, list of int)
+        ''' (str, int, float, list of str) -> (bool, float, list of int)
         REQ: this is a requirement
         REQ: another requirement
         requirement: possibly another requirement like this
@@ -161,8 +150,8 @@ if __name__ == "__main__":
         '''
         return False  # dummy code
 
-doc = DocString(func1)
-print(doc._requirements._requirements)
-print(str(doc.get_type_contract()))
-doc2 = DocString(func2)
-doc2_tc = doc2.get_type_contract()
+    doc = DocString(func1)
+    print(doc.get_type_contract())
+    doc = DocString(func2)
+    print(doc.get_type_contract())
+
