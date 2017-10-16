@@ -33,18 +33,13 @@ class DocString():
         return self._description
 
     def get_requirement(self):
-        ''' (DocString) -> list of str
+        ''' (DocString) -> Requirement
         Return the Requirement object
         '''
         return self._requirements
 
-    def get_examples(self):
-        '''(DocString) -> Example
-        Return the Example object
-        '''
-
     def _parse_type_contract(self):
-        ''' (DocString) -> dict of {str: list of str}
+        ''' (DocString) -> TypeContract
         Returns a dictionary that contains 2 lists: a list of input types and
         a list of output types
         '''
@@ -52,7 +47,7 @@ class DocString():
         return TypeContract(result["inputs"], result["outputs"])
 
     def _parse_requirements(self):
-        ''' (DocString) -> list of str
+        ''' (DocString) -> Requirement
         Parses a given string (docstring) and extracts the description.
         '''
         # Search for the beginning "req" case-insensitively
@@ -61,13 +56,13 @@ class DocString():
             if item[0:3].lower() == "req":
                 requirements_list.append(item)
 
-        return requirements_list
+        return Requirement(requirements_list)
 
     def _parse_description(self):
         ''' (DocString) -> Description
         Parses a given string (docstring) and extracts the requirements.
         '''
-        return "Pending Description"
+        return Description(None)
 
     def _parse_examples(self):
         ''' (DocString) -> Example
