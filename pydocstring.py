@@ -48,42 +48,16 @@ class DocString:
     def get_requirement(self):
         """ (DocString) -> Requirement
         Return the Requirement object
-        """
-        return self._requirement
+        '''
+        return self._requirements
 
     def _parse_type_contract(self):
-        """ (DocString) -> TypeContract
-        Returns the type contract of the given docstring
-        """
-        # get the type contract as a string
-        type_contract = ''.join(list(
-            filter(lambda d: '(' in d and ')' in d and '->' in d,
-                   self._doc_list)))
-        # determine where the inputs and output start in the string
-        input_start, input_end = type_contract.find(
-            "(") + 1, type_contract.find(")")
-        output_start = type_contract.find(
-            "->") + 2 if "->" in type_contract else type_contract.find(
-            "-->") + 3
-        # split the inputs by the comma, and remove any extra white space
-        inputs = [token.strip() for token in
-                  type_contract[input_start:input_end].split(",")]
-        outputs = []
-        outputs_str = type_contract[output_start:]
-        if "(" in outputs_str and ")" in outputs_str:
-            # if parentheses are present in the outputs, remove them but
-            # only one
-            # occurrence. If they put too many brackets they should remain
-            # in the final output
-            outputs_str = outputs_str.replace("(", "", 1)
-            outputs_str = outputs_str.replace(")", "", 1)
-        # split the outputs string by commas and iterate through each token,
-        #  removing
-        # extra whitespace and matching parentheses if present
-        for token in outputs_str.split(","):
-            token = token.strip()
-            outputs.append(token)
-        return TypeContract(inputs, outputs)
+        ''' (DocString) -> TypeContract
+        Returns a dictionary that contains 2 lists: a list of input types and
+        a list of output types
+        '''
+        result = TC.parse_partial(self.doc)[0]
+        return TypeContract(result["inputs"], result["outputs"])
 
     def _parse_requirements(self):
         """ (DocString) -> Requirement
@@ -152,7 +126,7 @@ class Example:
 
 if __name__ == "__main__":
     def func1(a_str, a_int, a_float, a_list, a_dict):
-        """ (str, int, float, DocString, dict of {str: int}) -> (bool)
+        ''' (str, int, float, list of str) -> (bool)
         This is a sample doc, this line is not too long.
         This line is a bit longer than expected, we need to break this
         line into two.
