@@ -59,3 +59,7 @@ rparen = string(")")
 TYPE = regex(r'\b[a-z|A-z]+\b')
 ARG = LIST | SET | TYPE
 ARROW = regex(r'[-|=]+>')
+
+## TO-DO
+
+# Re-create the type contract parser to follow better/more well defined rules
