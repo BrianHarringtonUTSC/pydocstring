@@ -1,3 +1,6 @@
+import TypeContractGrammar
+
+
 class DocString:
     """ python docstring object, apply PEP-257 docstring style checking """
 
@@ -11,24 +14,30 @@ class DocString:
         docstring and function itself for reference
         """
         self.doc = func.__doc__
-        self._doc_list = list(map(str.strip, self.doc.split('\n')))
-        # if successfully parsed docstring, this^ eventually becomes empty list
         self._type_contract = self._parse_type_contract()
-        self._inline_type_contract = self._parse_inline_type_contract(func)
-        self._description = self._parse_description()
-        self._requirements = self._parse_requirements()
-        self._examples = self._parse_examples()
 
     def _parse_inline_type_contract(self, func):
         type_list = list(func.__annotations__.values())
-        if type_list == []:
-            return TypeContract([], [])
-        inputs = type_list[0:-1]
-        outputs = type_list[-1]
-        return TypeContract(inputs, outputs)
+        if not []:
+            result = TypeContract([], [])
+        else:
+            inputs = type_list[0:-1]
+            outputs = type_list[-1]
+            result = TypeContract(inputs, outputs)
+        return result
 
     def __str__(self):
         return self.doc
+
+    def _parse_type_contract(self):
+        if self.doc:
+            try:
+                inputs, outputs = TypeContractGrammar.parse(self)
+            except Exception:
+                inputs, outputs = ["__ERROR__"], ["__ERROR__"]
+        else:
+            inputs, outputs = ["__NONE__"], ["__NONE__"]
+        return TypeContract(inputs, outputs)
 
     def get_type_contract(self):
         """ (DocString) -> TypeContract
@@ -48,28 +57,20 @@ class DocString:
     def get_requirement(self):
         """ (DocString) -> Requirement
         Return the Requirement object
-        '''
+        """
         return self._requirements
 
-    def _parse_type_contract(self):
-        ''' (DocString) -> TypeContract
-        Returns a dictionary that contains 2 lists: a list of input types and
-        a list of output types
-        '''
-        result = TC.parse_partial(self.doc)[0]
-        return TypeContract(result["inputs"], result["outputs"])
-
-    def _parse_requirements(self):
-        """ (DocString) -> Requirement
-        Parses a given string (docstring) and extracts the description.
-        """
-        # Search for the beginning "req" case-insensitively
-        requirements_list = []
-        for item in self._doc_list:
-            if item[0:3].lower() == "req":
-                requirements_list.append(item)
-
-        return Requirement(requirements_list)
+    # def _parse_requirements(self):
+    #     """ (DocString) -> Requirement
+    #     Parses a given string (docstring) and extracts the description.
+    #     """
+    #     # Search for the beginning "req" case-insensitively
+    #     requirements_list = []
+    #     for item in self._doc_list:
+    #         if item[0:3].lower() == "req":
+    #             requirements_list.append(item)
+    #
+    #     return Requirement(requirements_list)
 
     def _parse_description(self):
         """ (DocString) -> Description
@@ -77,25 +78,25 @@ class DocString:
         """
         return Description(None)
 
-    def _parse_examples(self):
-        """ (DocString) -> Example
-        Parses a given string (docstring) and extracts the examples.
-        """
-        return Example(None)
+    def evaluate(self, **kwargs):
+        return kwargs
 
 
 class TypeContract:
     def __str__(self) -> str:
-        return "intputs: {}, outputs: {}".format(self._arg_types,
-                                                 self._return_types)
+        return "inputs: {}, outputs: {}".format(self.arg_types,
+                                                self.return_types)
 
     def __init__(self, arg_types, return_types):
         # Type contract should contain the arguments and return types
-        self._arg_types = arg_types
-        self._return_types = return_types
+        self.arg_types = arg_types
+        self.return_types = return_types
 
     def __eq__(self, other):
-        return False
+        result = False
+        if isinstance(other, TypeContract):
+            result = (self.arg_types == other.arg_types) and (self.return_types == other.return_types)
+        return result
 
 
 class Description:
@@ -126,7 +127,7 @@ class Example:
 
 if __name__ == "__main__":
     def func1(a_str, a_int, a_float, a_list, a_dict):
-        ''' (str, int, float, list of str) -> (bool)
+        ''' (None) -> (boolean)
         This is a sample doc, this line is not too long.
         This line is a bit longer than expected, we need to break this
         line into two.
@@ -139,13 +140,11 @@ if __name__ == "__main__":
         True
         >>> func1('a', 1, 0.8, ['hello', 'world'], {'hi': 9})
         False
-        """
+        '''
         return False  # dummy code
 
 
     def func2(a_str, a_int, a_float, a_list, a_dict):
-        # TODO if you split the type contract to follow PEP 8 it will not
-        # fully parse
         """(str, int, float, list of str, dict of {str: int}) -> (bool, float, list of int)
         REQ: this is a requirement
         REQ: another requirement
@@ -169,24 +168,22 @@ if __name__ == "__main__":
 
 
     def func4():
-        ''' (tuple of (str, int)) -> None
+        ''' (list of list of list of list of list of list of list of list of list of int) -> None
         This may not get desired result.
         '''
         pass
 
 
     def func5():
-        ''' (tuple of (str, int)) -> tuple of (str, int)
+        ''' (tuple of str or list of str or dict of {int: list of obj}) -> (tuple of str or int)
         This may not get desired result.
         '''
         pass
 
-# doc = DocString(func1)
-# print(doc._requirements._requirements)
-# print(str(doc.get_type_contract()))
-# doc2 = DocString(func2)
-# doc2_tc = doc2.get_type_contract()
-
-doc = DocString(func5)
-doc.get_type_contract()
-print(doc.get_type_contract())
+    doc = DocString(func3)
+    ours = [TypeContract(['None'], ['bool']), TypeContract(['NoneType'], ['bool']),
+            TypeContract(['None'], ['boolean'])]
+    theirs = doc.get_type_contract()
+    print(theirs)
+    # print(ours == theirs)
+    # print(doc.evaluate(min_reqs=1, typecontract=[ours], desc="Add some cool stuff in here"))
