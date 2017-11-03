@@ -93,6 +93,57 @@ class AcceptableTypeContractTest(unittest.TestCase):
         self.assertEqual(theirs_tc, ours_tc, "Type contract does not match. \"{}\" != \"{}\""
                          .format(theirs_tc, ours_tc))
 
+    def test_TypeContract_Dict_1(self):
+        theirs_tc = pydoc.DocString(func_dict1).get_type_contract()
+        ours_tc = pydoc.TypeContract(["dict"], ["NoneType"])
+        self.assertEqual(theirs_tc, ours_tc, "Type contract does not match. \"{}\" != \"{}\""
+                         .format(theirs_tc, ours_tc))
+
+    def test_TypeContract_Dict_2(self):
+        theirs_tc = pydoc.DocString(func_dict2).get_type_contract()
+        ours_tc = pydoc.TypeContract(["dict of {int:str}"], ["NoneType"])
+        self.assertEqual(theirs_tc, ours_tc, "Type contract does not match. \"{}\" != \"{}\""
+                         .format(theirs_tc, ours_tc))
+
+    def test_TypeContract_Dict_Recursive(self):
+        theirs_tc = pydoc.DocString(func_dict_recursive).get_type_contract()
+        ours_tc = pydoc.TypeContract(["dict of {dict of {dict: dict of {int:str}}:str}"], ["NoneType"])
+        self.assertEqual(theirs_tc, ours_tc, "Type contract does not match. \"{}\" != \"{}\""
+                         .format(theirs_tc, ours_tc))
+
+    def test_TypeContract_Dict_Union(self):
+        theirs_tc = pydoc.DocString(func_dict_union).get_type_contract()
+        ours_tc = pydoc.TypeContract(["dict of {int or str: int or str}"], ["NoneType"])
+        self.assertEqual(theirs_tc, ours_tc, "Type contract does not match. \"{}\" != \"{}\""
+                         .format(theirs_tc, ours_tc))
+
+    def test_TypeContract_Standard_Subclass(self):
+        theirs_tc = pydoc.DocString(func_standard_subclass).get_type_contract()
+        ours_tc = pydoc.TypeContract(["io.TextIOWrapper"], ["NoneType"])
+        self.assertEqual(theirs_tc, ours_tc, "Type contract does not match. \"{}\" != \"{}\""
+                         .format(theirs_tc, ours_tc))
+
+    def test_TypeContract_Mixed1(self):
+        theirs_tc = pydoc.DocString(func_mixed1).get_type_contract()
+        ours_tc = pydoc.TypeContract(["int", "io.TextIOWrapper", "dict", "set", "tuple"],
+                                     ["NoneType"])
+        self.assertEqual(theirs_tc, ours_tc, "Type contract does not match. \"{}\" != \"{}\""
+                         .format(theirs_tc, ours_tc))
+
+    def test_TypeContract_Mixed2(self):
+        theirs_tc = pydoc.DocString(func_mixed2).get_type_contract()
+        ours_tc = pydoc.TypeContract(["int", "io.TextIOWrapper", "dict of {int:str}", "set of int", "tuple of int"],
+                                     ["NoneType"])
+        self.assertEqual(theirs_tc, ours_tc, "Type contract does not match. \"{}\" != \"{}\""
+                         .format(theirs_tc, ours_tc))
+
+    def test_TypeContract_Mixed3(self):
+        theirs_tc = pydoc.DocString(func_mixed3).get_type_contract()
+        ours_tc = pydoc.TypeContract(["int", "io.TextIOWrapper", "dict of {int:str}", "set of int", "tuple of int"],
+                                     ["int", "io.TextIOWrapper", "dict of {int:str}", "set of int", "tuple of int"])
+        self.assertEqual(theirs_tc, ours_tc, "Type contract does not match. \"{}\" != \"{}\""
+                         .format(theirs_tc, ours_tc))
+
 
 def func_none():
     """() -> NoneType
@@ -120,16 +171,12 @@ def func_list2():
 
 
 def func_list_union():
-    """
-    (list of int or str) -> NoneType
-    :return:
+    """(list of int or str) -> NoneType
     """
 
 
 def func_list_recursive():
-    """
-    (list of list of list of list of int) -> NoneType
-    :return:
+    """(list of list of list of list of int) -> NoneType
     """
 
 
@@ -144,16 +191,12 @@ def func_set2():
 
 
 def func_set_union():
-    """
-    (set of int or str) -> NoneType
-    :return:
+    """(set of int or str) -> NoneType
     """
 
 
 def func_set_recursive():
-    """
-    (set of set of set of set of int) -> NoneType
-    :return:
+    """(set of set of set of set of int) -> NoneType
     """
 
 
@@ -168,21 +211,57 @@ def func_tuple2():
 
 
 def func_tuple_union():
-    """
-    (tuple of int or str) -> NoneType
-    :return:
+    """(tuple of int or str) -> NoneType
     """
 
 
 def func_tuple_recursive():
-    """
-    (tuple of tuple of tuple of tuple of int) -> NoneType
-    :return:
+    """(tuple of tuple of tuple of tuple of int) -> NoneType
     """
 
 
-# TODO test dictionaries
-# TODO test complicated and mixed contracts
-# TODO test wrong/bad/multi-line contracts
+def func_dict1():
+    """(dict) -> NoneType
+    """
+
+
+def func_dict2():
+    """(dict of {int:str}) -> NoneType
+    """
+
+
+def func_dict_union():
+    """(dict of {int or str: int or str}) -> NoneType
+    """
+
+
+def func_dict_recursive():
+    """(dict of {dict of {dict: dict of {int:str}}:str}) -> NoneType
+    """
+
+
+def func_standard_subclass():
+    """(io.TextIOWrapper) -> NoneType
+    """
+
+
+def func_mixed1():
+    """(int, io.TextIOWrapper, dict, set, tuple) -> NoneType
+    """
+
+
+def func_mixed2():
+    """(int, io.TextIOWrapper, dict of {int:str}, set of int, tuple of int) -> NoneType
+    """
+
+
+def func_mixed3():
+    """(int, io.TextIOWrapper, dict of {int:str}, set of int, tuple of int)
+    ->
+    int, io.TextIOWrapper, dict of {int:str}, set of int, tuple of int
+    """
+
+
+# TODO test wrong/bad contracts
 if __name__ == '__main__':
     unittest.main()

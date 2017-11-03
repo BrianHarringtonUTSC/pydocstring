@@ -113,7 +113,8 @@ def parse(docstring):
     specified function.
     """
     data = docstring.doc.replace("\n", " ")
-    return _type_contract.parse_partial(data)[0]
+    results = _type_contract.parse_partial(data)[0]
+    return results
 
 
 # define whitespaces
@@ -134,7 +135,7 @@ comma = p.string(',')
 union = p.string("or")
 
 # Basic single-word data-types (str, int, TypeContract, etc)
-_type = p.regex(r'\b([a-z]|[A-Z])+\b').desc("data-type")
+_type = p.regex(r'\b([a-z]|[A-Z]|\.)+\b').desc("data-type")
 _arrow = p.regex(r'[-|=]+>')
 # One collective definition of arguments
 _argument = (_list | _tuple | _set | _dict | _union | _type)
