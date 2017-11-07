@@ -28,8 +28,8 @@ def _list():
                   #  complete it, it still appears in the output
                   | _argument + whitespace + union + optional_whitespace)
     # then declare the forms of lists that are accepted (including recursive definitions)
-    token = (p.string("list of") + whitespace + union_args
-             | p.string("list of") + whitespace + _argument
+    token = (p.string("list of") + whitespace + l_paren + union_args + r_paren
+             | p.string("list of") + whitespace + l_paren + _argument + r_paren
              | p.string("list"))
     return (yield token)
 
@@ -44,8 +44,8 @@ def _tuple():
                   #  complete it, it still appears in the output
                   | _argument + whitespace + union + optional_whitespace)
     # then declare the forms of tuples that are accepted (including recursive definitions)
-    token = (p.string("tuple of") + whitespace + union_args
-             | p.string("tuple of") + whitespace + _argument
+    token = (p.string("tuple of") + whitespace + l_paren + union_args + r_paren
+             | p.string("tuple of") + whitespace + l_paren + _argument + r_paren
              | p.string("tuple"))
     return (yield token)
 
@@ -60,8 +60,8 @@ def _set():
                   #  complete it, it still appears in the output
                   | _argument + whitespace + union + optional_whitespace)
     # then declare the forms of sets that are accepted (including recursive definitions)
-    token = (p.string("set of") + whitespace + union_args
-             | p.string("set of") + whitespace + _argument
+    token = (p.string("set of") + whitespace + l_paren + union_args + r_paren
+             | p.string("set of") + whitespace + l_paren + _argument + r_paren
              | p.string("set"))
     return (yield token)
 
