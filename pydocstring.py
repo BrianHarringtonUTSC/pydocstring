@@ -60,17 +60,17 @@ class DocString:
         """
         return self._requirements
 
-    # def _parse_requirements(self):
-    #     """ (DocString) -> Requirement
-    #     Parses a given string (docstring) and extracts the description.
-    #     """
-    #     # Search for the beginning "req" case-insensitively
-    #     requirements_list = []
-    #     for item in self._doc_list:
-    #         if item[0:3].lower() == "req":
-    #             requirements_list.append(item)
-    #
-    #     return Requirement(requirements_list)
+    def _parse_requirements(self):
+        """ (DocString) -> Requirement
+        Parses a given string (docstring) and extracts the description.
+        """
+        # Search for the beginning "req" case-insensitively
+        requirements_list = []
+        for item in self._doc_list:
+            if item[0:3].lower() == "req":
+                requirements_list.append(item)
+
+        return Requirement(requirements_list)
 
     def _parse_description(self):
         """ (DocString) -> Description
