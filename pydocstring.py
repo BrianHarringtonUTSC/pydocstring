@@ -22,9 +22,12 @@ class DocString:
         inputs, outputs = [], []
         if types_dict:
             for key in types_dict:
-                if key == "return":
+                if key == "return" and isinstance(types_dict[key], (tuple, list)):
                     for return_value in types_dict[key]:
                         outputs.append(return_value.__name__ if return_value else str(return_value))
+                elif key == "return":
+                    value = types_dict[key]
+                    outputs.append(value.__name__ if value else str(value))
                 else:
                     value = types_dict[key]
                     inputs.append(value.__name__ if value else str(value))
@@ -186,7 +189,7 @@ if __name__ == "__main__":
         pass
 
 
-    def func5():
+    def func5(a: int, b:str) -> None:
         '''(list of tuple of set of dict of {int:str}) -> None
         This may not get desired result.
         '''
