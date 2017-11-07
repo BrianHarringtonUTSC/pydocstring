@@ -144,6 +144,20 @@ class AcceptableTypeContractTest(unittest.TestCase):
         self.assertEqual(theirs_tc, ours_tc, "Type contract does not match. \"{}\" != \"{}\""
                          .format(theirs_tc, ours_tc))
 
+    def test_TypeContract_WrongFormat_list(self):
+        theirs_tc = pydoc.DocString(func_wrong_format).get_type_contract()
+        ours_tc = pydoc.TypeContract(["__ERROR__"],
+                                     ["__ERROR__"])
+        self.assertEqual(theirs_tc, ours_tc, "Type contract does not match. \"{}\" != \"{}\""
+                         .format(theirs_tc, ours_tc))
+
+    def test_TypeContract_NoDocString(self):
+        theirs_tc = pydoc.DocString(func_no_docstring).get_type_contract()
+        ours_tc = pydoc.TypeContract(["__NONE__"],
+                                     ["__NONE__"])
+        self.assertEqual(theirs_tc, ours_tc, "Type contract does not match. \"{}\" != \"{}\""
+                         .format(theirs_tc, ours_tc))
+
 
 def func_none():
     """() -> NoneType
@@ -262,6 +276,14 @@ def func_mixed3():
     """
 
 
-# TODO test wrong/bad contracts
+def func_wrong_format():
+    """(list of [str, int]) -> None
+    """
+
+
+def func_no_docstring():
+    pass
+
+
 if __name__ == '__main__':
     unittest.main()
